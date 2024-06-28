@@ -1,5 +1,5 @@
 
-# Create an S3 bucket
+# Create an S3 bucket t
 resource "aws_s3_bucket" "buck" {
   bucket = "test58855852025"
 }
