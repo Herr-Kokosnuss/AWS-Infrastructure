@@ -1,7 +1,7 @@
 
 # Create an S3 bucket t
 resource "aws_s3_bucket" "buck" {
-  bucket = "test58855852025"
+  bucket = "test588558520025"
 }
 
 # Enable versioning on the bucket
@@ -16,8 +16,8 @@ resource "aws_s3_bucket_versioning" "buck_versioning" {
 
 locals {
   files = {
-    "test.txt"  = "/home/frogy/aws-github/AWS/test.txt",
-    "test1.txt" = "/home/frogy/aws-github/AWS/test1.txt",
+    "test.txt"  = "/home/frogy/AWS-linux/AWS/test.txt",
+    "test1.txt" = "/home/frogy/AWS-linux/AWS/test1.txt",
   }
 }
 
