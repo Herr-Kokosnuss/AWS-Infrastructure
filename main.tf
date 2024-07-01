@@ -1,23 +1,24 @@
 
-# Creating ec2 instance
-resource "aws_instance" "test" {
-  ami           = "ami-01b799c439fd5516a"
-  instance_type = "t2.micro"
-
+# Creating ec2 instance.
+resource "aws_instance" "webser" {
+  ami                         = "ami-01b799c439fd5516a"
+  instance_type               = "t2.micro"
   tags = {
-    Name = "test"
+    Name = "webser"
   }
 }
 
-# Creating another ec2 instance
-resource "aws_instance" "test1" {
-  ami           = "ami-01b799c439fd5516a"
-  instance_type = "t2.micro"
+## Creating a security group for the instance
+# resource "aws_security_group" "instance" {
+#   name = "terraform-example-instance"
+#   ingress {
+#     from_port   = 8080
+#     to_port     = 8080
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
+# }
 
-  tags = {
-    Name = "test1"
-  }
-}
 
 # Create an S3 bucket t
 resource "aws_s3_bucket" "buck" {
