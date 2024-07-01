@@ -38,6 +38,7 @@ locals {
   files = {
     "test.txt"  = "/home/frogy/AWS-linux/AWS/test.txt",
     "test1.txt" = "/home/frogy/AWS-linux/AWS/test1.txt",
+    "frog.webp" = "/home/frogy/AWS-linux/AWS/frog.webp",
   }
 }
 
