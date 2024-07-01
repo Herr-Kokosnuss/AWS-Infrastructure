@@ -1,24 +1,23 @@
-# Terraform and provider configuration
 
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-  required_version = ">=1.0.0"
-}
-
-# Configure the AWS Provider
-provider "aws" {
-  region = "us-east-1"
-}
 
 # Creating ec2 instance
 resource "aws_instance" "test" {
   ami           = "ami-01b799c439fd5516a"
   instance_type = "t2.micro"
+
+  tags = {
+    Name = "test"
+  }
+}
+
+# Creating another ec2 instance
+resource "aws_instance" "test1" {
+  ami           = "ami-01b799c439fd5516a"
+  instance_type = "t2.micro"
+
+  tags = {
+    Name = "test1"
+  }
 }
 
 # Create an S3 bucket t
