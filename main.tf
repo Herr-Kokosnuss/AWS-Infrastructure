@@ -1,8 +1,8 @@
 
 # Creating ec2 instance.
 resource "aws_instance" "webser" {
-  ami                         = "var.ami"
-  instance_type               = "t2.micro"
+  ami           = "var.ami"
+  instance_type = "t2.micro"
   tags = {
     Name = "webser"
   }
