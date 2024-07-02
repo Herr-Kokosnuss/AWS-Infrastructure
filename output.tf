@@ -15,5 +15,5 @@ output "Server_1_IP" {
 
 output "Server_2_IP" {
   value = aws_instance.webser.public_ip
-  description = "The public IP of the server"
+  description = "The public IP of the server 2"
 }
