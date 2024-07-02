@@ -12,3 +12,8 @@ output "Server_1_IP" {
   value = aws_instance.webser.public_ip
   description = "The public IP of the server"
 }
+
+output "Server_2_IP" {
+  value = aws_instance.webser.public_ip
+  description = "The public IP of the server"
+}
