@@ -1,14 +1,15 @@
-# output of server name and id
+output "alb_dns_name" {
+  value       = aws_lb.example.dns_name
+  description = "The domain name of the load balancer"
+}
 
-output "Server_1_Name" {
-  value       = aws_instance.webser.tags["Name"]
-  description = "The name of the server"
+output "default_vpc_id" {
+  value       = data.aws_vpc.main.id
+  description = "The ID of the default VPC"
 }
-output "Server_1_ID" {
-  value       = aws_instance.webser.id
-  description = "The ID of the server"
-}
-output "Server_1_IP" {
-  value       = aws_instance.webser.public_ip
-  description = "The public IP of the server"
+
+# Output the IDs of all subnets in the default VPC
+output "default_vpc_subnet_ids" {
+  value       = data.aws_subnets.default.ids
+  description = "The IDs of all subnets within the default VPC"
 }
