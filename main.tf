@@ -7,7 +7,7 @@
 
 # configuring the launch configuration
 resource "aws_launch_configuration" "example" {
-  image_id        = "ami-01b799c439fd5516a"
+  image_id        = "${var.ami}"
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.alb.id]
 
