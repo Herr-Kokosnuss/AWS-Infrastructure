@@ -2,6 +2,7 @@
 resource "aws_instance" "web" {
   ami           = "${var.ami}"
   instance_type = "t2.micro"
+  key_name        = aws_key_pair.main_key.key_name
   vpc_security_group_ids = [aws_security_group.alb.id]
 
   tags = {
@@ -10,19 +11,19 @@ resource "aws_instance" "web" {
 }
 # creeating key-pair
 resource "aws_key_pair" "main_key" {
-  key_name = "mykey"
+  key_name = "keykey"
   public_key = tls_private_key.rsa.public_key_openssh
 
 }
 
 resource "tls_private_key" "rsa" {
   algorithm = "RSA"
-  rsa_bits = 2048
+  rsa_bits = 4096
 }
 
 resource "local_file" "main_key" {
   content = tls_private_key.rsa.private_key_pem
-  filename = "mykey"
+  filename = "keykey"
   
 }
 resource "aws_eip" "ElasticIP" {
