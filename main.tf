@@ -1,3 +1,36 @@
+# main instance
+resource "aws_instance" "web" {
+  ami           = "${var.ami}"
+  instance_type = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.alb.id]
+
+  tags = {
+    Name = "main-instance"
+  }
+}
+# creeating key-pair
+resource "aws_key_pair" "main_key" {
+  key_name = "mykey"
+  public_key = tls_private_key.rsa.public_key_openssh
+
+}
+
+resource "tls_private_key" "rsa" {
+  algorithm = "RSA"
+  rsa_bits = 2048
+}
+
+resource "local_file" "main_key" {
+  content = tls_private_key.rsa.private_key_pem
+  filename = "mykey"
+  
+}
+resource "aws_eip" "ElasticIP" {
+  instance = aws_instance.web.id  
+}
+
+
+
 ###################################################
 #Auto Scaling Group (ASG).
 #An ASG takes care of a lot of tasks for you completely automatically, including launching
