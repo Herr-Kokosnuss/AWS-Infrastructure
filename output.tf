@@ -13,3 +13,8 @@ output "default_vpc_subnet_ids" {
   value       = data.aws_subnets.default.ids
   description = "The IDs of all subnets within the default VPC"
 }
+
+output "EIP" {
+  value       = aws_eip.ElasticIP.public_ip
+  description = "The public IP address of the Elastic IP"
+}

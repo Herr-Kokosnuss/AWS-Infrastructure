@@ -1,3 +1,18 @@
+# main instance
+resource "aws_instance" "web" {
+  ami           = "${var.ami}"
+  instance_type = "t2.micro"
+  key_name        = aws_key_pair.main_key.key_name
+  vpc_security_group_ids = [aws_security_group.alb.id]
+
+  tags = {
+    Name = "main-instance"
+  }
+}
+
+resource "aws_eip" "ElasticIP" {
+  instance = aws_instance.web.id  
+}
 ###################################################
 #Auto Scaling Group (ASG).
 #An ASG takes care of a lot of tasks for you completely automatically, including launching
@@ -10,8 +25,7 @@ resource "aws_launch_configuration" "example" {
   image_id        = "${var.ami}"
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.alb.id]
-
-  user_data = file("userdata.sh")
+  user_data       = file("userdata.sh") 
 
   # set create_before_destroy to true, Terraform will invert the order in which
   # it replaces resources, creating the replacement resource first to ensure continuity of service (zero downtime)
