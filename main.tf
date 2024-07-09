@@ -9,7 +9,6 @@ resource "aws_instance" "web" {
     Name = "main-instance"
   }
 }
-
 ############
 resource "aws_instance" "web12" {
   ami                    = var.ami
@@ -26,12 +25,15 @@ resource "aws_instance" "web12" {
 resource "aws_eip" "ElasticIP" {
   instance = aws_instance.web.id
 }
+resource "aws_eip" "ElasticIP2" {
+  instance = aws_instance.web12.id
+}
 
 # S3 bucket with versioning enabled, AES256 encryption, and block public access.
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "terraform-state-8520"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 resource "aws_s3_bucket_versioning" "enabled" {
@@ -72,6 +74,7 @@ terraform {
     key            = "terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "terraform-state-locks"
+    workspace_key_prefix = "env"
     encrypt        = true
   }
 }
