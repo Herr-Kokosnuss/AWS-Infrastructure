@@ -1,7 +1,7 @@
 ######### Security Groups ######
 # Creating a security group for the Application Load Balancer
 resource "aws_security_group" "alb" {
-  name = "terraform-example-alb"
+  name = "terraform-example-alb-${terraform.workspace}"
 
   ingress {
     from_port   = 0

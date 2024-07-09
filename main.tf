@@ -1,10 +1,7 @@
-locals {
-  instance_name = "${terraform.workspace}-instance"
-}
 
 # main instance
 resource "aws_instance" "web" {
-  ami                    = var.ami
+  ami           = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.main_key.key_name
   vpc_security_group_ids = [aws_security_group.alb.id]
@@ -13,10 +10,9 @@ resource "aws_instance" "web" {
     Name = "main-instance-${terraform.workspace}"
   }
 }
-
 ############
 resource "aws_instance" "web12" {
-  ami                    = var.ami
+  ami           = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.main_key.key_name
   vpc_security_group_ids = [aws_security_group.alb.id]
@@ -26,19 +22,16 @@ resource "aws_instance" "web12" {
   }
 }
 ################
-# # static IP address for the instances
-# resource "aws_eip" "elastic_ip_1" {
-#   instance = aws_instance.web.id
-# }
-# resource "aws_eip" "elastic_ip_2" {
-#   instance = aws_instance.web12.id
-# }
+# static IP address for the instance
+resource "aws_eip" "ElasticIP" {
+  instance = aws_instance.web.id
+}
 
 # S3 bucket with versioning enabled, AES256 encryption, and block public access.
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "terraform-state-8520"
+  bucket = "terraform-state-8520-${terraform.workspace}"
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 resource "aws_s3_bucket_versioning" "enabled" {
@@ -64,7 +57,7 @@ resource "aws_s3_bucket_public_access_block" "public_access_block" {
   restrict_public_buckets = true
 }
 resource "aws_dynamodb_table" "terraform_locks" {
-  name         = "terraform-state-locks"
+  name         = "terraform-state-locks-${terraform.workspace}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
   attribute {
@@ -76,9 +69,8 @@ resource "aws_dynamodb_table" "terraform_locks" {
 terraform {
   backend "s3" {
     bucket         = "terraform-state-8520"
-    key            = "state/terraform.tfstate"
+    key            = "terraform.tfstate"
     region         = "us-east-1"
-    workspace_key_prefix = "env"
     dynamodb_table = "terraform-state-locks"
     encrypt        = true
   }
@@ -92,7 +84,7 @@ terraform {
 
 # configuring the launch configuration
 resource "aws_launch_configuration" "example" {
-  image_id        = var.ami
+  image_id        = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.alb.id]
   user_data       = file("userdata.sh")
@@ -106,7 +98,6 @@ resource "aws_launch_configuration" "example" {
 
 # Creating an autoscaling group
 resource "aws_autoscaling_group" "example" {
-  name_prefix = "terraform-asg-example-${terraform.workspace}"
   launch_configuration = aws_launch_configuration.example.name
   vpc_zone_identifier  = data.aws_subnets.default.ids # getting subnets from variable 
 
