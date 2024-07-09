@@ -1,4 +1,4 @@
-# creeating key-pair
+# creeating key-pair for default
 resource "aws_key_pair" "main_key" {
   key_name   = "keykey"
   public_key = tls_private_key.rsa.public_key_openssh

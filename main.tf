@@ -1,3 +1,7 @@
+locals {
+  instance_name = "${terraform.workspace}-instance"
+}
+
 # main instance
 resource "aws_instance" "web" {
   ami                    = var.ami
@@ -6,7 +10,7 @@ resource "aws_instance" "web" {
   vpc_security_group_ids = [aws_security_group.alb.id]
 
   tags = {
-    Name = "main-instance"
+    Name = "main-instance-${terraform.workspace}"
   }
 }
 
@@ -18,14 +22,17 @@ resource "aws_instance" "web12" {
   vpc_security_group_ids = [aws_security_group.alb.id]
 
   tags = {
-    Name = "main-instance-2"
+    Name = "main-instance-2-${terraform.workspace}"
   }
 }
 ################
-# static IP address for the instance
-resource "aws_eip" "ElasticIP" {
-  instance = aws_instance.web.id
-}
+# # static IP address for the instances
+# resource "aws_eip" "elastic_ip_1" {
+#   instance = aws_instance.web.id
+# }
+# resource "aws_eip" "elastic_ip_2" {
+#   instance = aws_instance.web12.id
+# }
 
 # S3 bucket with versioning enabled, AES256 encryption, and block public access.
 resource "aws_s3_bucket" "terraform_state" {
@@ -69,8 +76,9 @@ resource "aws_dynamodb_table" "terraform_locks" {
 terraform {
   backend "s3" {
     bucket         = "terraform-state-8520"
-    key            = "terraform.tfstate"
+    key            = "state/terraform.tfstate"
     region         = "us-east-1"
+    workspace_key_prefix = "env"
     dynamodb_table = "terraform-state-locks"
     encrypt        = true
   }
@@ -98,6 +106,7 @@ resource "aws_launch_configuration" "example" {
 
 # Creating an autoscaling group
 resource "aws_autoscaling_group" "example" {
+  name_prefix = "terraform-asg-example-${terraform.workspace}"
   launch_configuration = aws_launch_configuration.example.name
   vpc_zone_identifier  = data.aws_subnets.default.ids # getting subnets from variable 
 
@@ -112,7 +121,7 @@ resource "aws_autoscaling_group" "example" {
   max_size = 4
   tag {
     key                 = "Name"
-    value               = "terraform-asg-example"
+    value               = "terraform-asg-example-${terraform.workspace}"
     propagate_at_launch = true
   }
 }
@@ -125,7 +134,7 @@ resource "aws_autoscaling_group" "example" {
 #3- target group: A target group routes requests to the instances in the ASG.
 
 resource "aws_lb" "example" {
-  name               = "terraform-asg-example"
+  name               = "terraform-asg-example-${terraform.workspace}"
   load_balancer_type = "application"
   subnets            = data.aws_subnets.default.ids
   security_groups    = [aws_security_group.alb.id]
@@ -138,7 +147,7 @@ resource "aws_lb" "example" {
 #returns a response that matches the configured matcher (e.g., you can configure a
 #matcher to look for a 200 OK response)
 resource "aws_lb_target_group" "asg" {
-  name     = "terraform-asg-example"
+  name     = "terraform-asg-example-${terraform.workspace}"
   port     = 80
   protocol = "HTTP"
   vpc_id   = data.aws_vpc.main.id

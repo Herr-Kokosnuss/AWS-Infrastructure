@@ -14,10 +14,10 @@ output "Default_VPC_ID" {
 #   description = "The IDs of all subnets within the default VPC"
 # }
 
-output "EIP_Main_Instance" {
-  value       = aws_eip.ElasticIP.public_ip
-  description = "The public IP address of the Elastic IP"
-}
+# output "EIP_Main_Instance" {
+#   value       = aws_eip.ElasticIP.public_ip
+#   description = "The public IP address of the Elastic IP"
+# }
 
 output "s3_bucket_arn" {
   value       = aws_s3_bucket.terraform_state.arn

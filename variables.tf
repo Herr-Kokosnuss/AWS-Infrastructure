@@ -15,6 +15,11 @@ data "aws_subnets" "default" {
     values = [data.aws_vpc.main.id]
   }
 }
+# apply existing dynamodb table
+data "aws_dynamodb_table" "existing" {
+  name = "terraform-state-locks"
+}
+
 
 # variable "default_vpc_id" {
 #   description = "The ID of the default VPC"
