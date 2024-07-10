@@ -1,25 +1,24 @@
-
 locals {
   instance_name = "${terraform.workspace}-instance"
+
+  ami_ids = {
+    "default" = "ami-01b799c439fd5516a" # Fallback AMI
+    "dev"     = "ami-01b799c439fd5516a" # Development AMI
+    "prod"    = "ami-06c68f701d8090592" # Staging AMI
+  }
 }
+
 variable "ami" {
   description = "Value of the AMI based on workspace"
   type        = string
 
 }
 
-locals {
-  ami_ids = {
-    "default"       = "ami-01b799c439fd5516a" # Fallback AMI
-    "dev"           = "ami-01b799c439fd5516a" # Development AMI
-    "prod"          = "ami-01b799c439fd5516a" # Staging AMI
-  }
-}
 
 locals {
   vpc_ids = {
-    "dev"     = "vpc-00803c89e00c3a3a5"
-    "prod"    = "vpc-012320dbf1564c17a"
+    "dev"  = "vpc-00803c89e00c3a3a5"
+    "prod" = "vpc-012320dbf1564c17a"
   }
 }
 
@@ -33,10 +32,7 @@ data "aws_subnets" "default" {
     values = [data.aws_vpc.main.id]
   }
 }
-# apply existing dynamodb table
-data "aws_dynamodb_table" "existing" {
-  name = "terraform-state-locks"
-}
+
 
 
 

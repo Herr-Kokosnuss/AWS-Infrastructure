@@ -1,7 +1,7 @@
 
 # main instance
 resource "aws_instance" "web" {
-  ami           = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
+  ami                    = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.main_key.key_name
   vpc_security_group_ids = [aws_security_group.alb.id]
@@ -12,16 +12,17 @@ resource "aws_instance" "web" {
 }
 ############
 resource "aws_instance" "web12" {
-  ami           = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
+  ami                    = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.main_key.key_name
   vpc_security_group_ids = [aws_security_group.alb.id]
 
   tags = {
-    Name = "main-instance-2-${terraform.workspace}"
+    Name = "main-instance-22-${terraform.workspace}"
   }
 }
 ################
+
 # static IP address for the instance
 resource "aws_eip" "ElasticIP" {
   instance = aws_instance.web.id
@@ -65,16 +66,16 @@ resource "aws_dynamodb_table" "terraform_locks" {
     type = "S"
   }
 }
-#s3 bucket to store the terraform state file (remote backend)
-terraform {
-  backend "s3" {
-    bucket         = "terraform-state-8520"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "terraform-state-locks"
-    encrypt        = true
-  }
-}
+# #s3 bucket to store the terraform state file (remote backend)
+# terraform {
+#   backend "s3" {
+#     bucket         = "terraform-state-8520"
+#     key            = "terraform.tfstate"
+#     region         = "us-east-1"
+#     dynamodb_table = "terraform-state-locks"
+#     encrypt        = true
+#   }
+# }
 # ###################################################
 #Auto Scaling Group (ASG).
 #An ASG takes care of a lot of tasks for you completely automatically, including launching

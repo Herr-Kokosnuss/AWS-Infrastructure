@@ -11,14 +11,14 @@ terraform {
 }
 locals {
   aws_accounts = {
- 
+
     "dev" = {
       region  = "us-east-1",
-      profile = "dev-account"
+      profile = "dev"
     },
     "prod" = {
       region  = "us-east-1",
-      profile = "prod-account"
+      profile = "prod"
     }
   }
 }
