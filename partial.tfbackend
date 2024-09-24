@@ -1,4 +1,0 @@
-terraform init \
-  -backend-config="bucket=terraform-state-8520-${terraform.workspace}" \
-  -backend-config="dynamodb_table=terraform-state-locks-${terraform.workspace}" 
-

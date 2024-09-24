@@ -9,22 +9,8 @@ terraform {
   }
   required_version = ">=1.0.0"
 }
-locals {
-  aws_accounts = {
 
-    "dev" = {
-      region  = "us-east-1",
-      profile = "dev"
-    },
-    "prod" = {
-      region  = "us-east-1",
-      profile = "prod"
-    }
-  }
-}
-
-# Configure the AWS Provider
 provider "aws" {
-  region  = local.aws_accounts[terraform.workspace].region
-  profile = local.aws_accounts[terraform.workspace].profile
+  region  = "us-east-1"
+  profile = "default"
 }

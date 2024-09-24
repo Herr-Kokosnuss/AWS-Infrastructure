@@ -1,29 +1,16 @@
-locals {
-  instance_name = "${terraform.workspace}-instance"
-
-  ami_ids = {
-    "default" = "ami-01b799c439fd5516a" # Fallback AMI
-    "dev"     = "ami-01b799c439fd5516a" # Development AMI
-    "prod"    = "ami-06c68f701d8090592" # Staging AMI
-  }
-}
 
 variable "ami" {
-  description = "Value of the AMI based on workspace"
+  description = "Value of the AMI"
   type        = string
-
+  default     = "ami-01b799c439fd5516a" # Default AMI
 }
 
-
 locals {
-  vpc_ids = {
-    "dev"  = "vpc-00803c89e00c3a3a5"
-    "prod" = "vpc-012320dbf1564c17a"
-  }
+  vpc_id = "vpc-00803c89e00c3a3a5"
 }
 
 data "aws_vpc" "main" {
-  id = local.vpc_ids[terraform.workspace]
+  id = local.vpc_id
 }
 
 data "aws_subnets" "default" {
@@ -33,18 +20,17 @@ data "aws_subnets" "default" {
   }
 }
 
+# variable "db_username" {
+#   description = "The username for the database"
+#   type        = string
+#   sensitive   = true
+# }
 
-variable "db_username" {
-description = "The username for the database"
-type = string
-sensitive = true
-}
-
-variable "db_password" {
-description = "The password for the database"
-type = string
-sensitive = true
-}
+# variable "db_password" {
+#   description = "The password for the database"
+#   type        = string
+#   sensitive   = true
+# }
 
 
 
