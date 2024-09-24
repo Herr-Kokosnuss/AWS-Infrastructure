@@ -19,3 +19,4 @@ echo '</body>' >> /var/www/html/index.html
 echo '</html>' >> /var/www/html/index.html
 
 curl -o /var/www/html/frog-png.png https://i.postimg.cc/hjCvPX9T/frog-png.png
+
