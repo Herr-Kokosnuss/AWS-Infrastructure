@@ -1,9 +1,5 @@
 
-<<<<<<< HEAD
-# main instance aw
-=======
 # main instance aws
->>>>>>> testing
 resource "aws_instance" "web" {
   ami                    = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type          = "t2.micro"
