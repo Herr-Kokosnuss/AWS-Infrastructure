@@ -5,6 +5,4 @@ terraform.tfstate.backup
 test
 hashicorp
 .terraform
-mykey
 keykey
-terraform.tfstate.d/prod/.terraform.tfstate.lock.info
