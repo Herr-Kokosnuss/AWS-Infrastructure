@@ -1,5 +1,5 @@
 
-# main instance
+# main instance aws
 resource "aws_instance" "web" {
   ami                    = local.ami_ids[terraform.workspace != "default" ? terraform.workspace : "default"]
   instance_type          = "t2.micro"
