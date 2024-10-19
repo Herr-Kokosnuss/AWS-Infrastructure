@@ -17,7 +17,7 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-
+#
 # Creating a security group for the instance
 # resource "aws_security_group" "test" {
 #   name = "terraform-example-instance"

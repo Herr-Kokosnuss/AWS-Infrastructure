@@ -6,7 +6,7 @@ variable "ami" {
 }
 
 locals {
-  vpc_id = "vpc-00803c89e00c3a3a5"
+  vpc_id = "vpc-0269a48609d2776b8"
 }
 
 data "aws_vpc" "main" {
