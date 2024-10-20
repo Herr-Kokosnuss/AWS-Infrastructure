@@ -1,14 +1,14 @@
 # main instance aws
-resource "aws_instance" "web" {
-  ami                    = var.ami
-  instance_type          = "t2.micro"
-  key_name               = aws_key_pair.main_key.key_name
-  vpc_security_group_ids = [aws_security_group.alb.id]
+# resource "aws_instance" "web" {
+#   ami                    = var.ami
+#   instance_type          = "t2.micro"
+#   key_name               = aws_key_pair.main_key.key_name
+#   vpc_security_group_ids = [aws_security_group.alb.id]
 
-  tags = {
-    Name = "main-instance"
-  }
-}
+#   tags = {
+#     Name = "main-instance"
+#   }
+# }
 
 # # static IP address for the instance
 # resource "aws_eip" "ElasticIP" {
@@ -57,7 +57,7 @@ resource "aws_instance" "web" {
 #   }
 # }
 
-# # configuring the launch configuration
+# configuring the launch configuration (discontinued oct 2024)
 # resource "aws_launch_configuration" "example" {
 #   image_id        = var.ami
 #   instance_type   = "t2.micro"
@@ -68,10 +68,30 @@ resource "aws_instance" "web" {
 #     create_before_destroy = true
 #   }
 # }
+#Define the launch template
+resource "aws_launch_template" "example" {
+  name_prefix   = "example-"
+  image_id      = var.ami
+  instance_type = "t2.micro"
+  key_name      = aws_key_pair.main_key.key_name  // Add this line
 
-# # Creating an autoscaling group
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.alb.id]
+  }
+
+  user_data = base64encode(file("userdata.sh"))
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "terraform-asg-example"
+    }
+  }
+}
+# Creating an autoscaling group
 # resource "aws_autoscaling_group" "example" {
-#   launch_configuration = aws_launch_configuration.example.name
+#   #launch_configuration = aws_launch_configuration.example.name
 #   vpc_zone_identifier  = data.aws_subnets.default.ids
 
 #   target_group_arns = [aws_lb_target_group.asg.arn]
@@ -79,47 +99,69 @@ resource "aws_instance" "web" {
 #   health_check_type = "ELB"
 
 #   min_size = 2
-#   max_size = 4
+#   max_size = 2
 #   tag {
 #     key                 = "Name"
 #     value               = "terraform-asg-example"
 #     propagate_at_launch = true
 #   }
 # }
+resource "aws_autoscaling_group" "example" {
 
-# #Amazon’s Elastic Load Balancer (ELB)
-# resource "aws_lb" "example" {
-#   name               = "terraform-asg-example"
-#   load_balancer_type = "application"
-#   subnets            = data.aws_subnets.default.ids
-#   security_groups    = [aws_security_group.alb.id]
-# }
+  vpc_zone_identifier  = data.aws_subnets.default.ids
 
-# # create a target group for ASG
-# resource "aws_lb_target_group" "asg" {
-#   name     = "terraform-asg-example"
-#   port     = 80
-#   protocol = "HTTP"
-#   vpc_id   = data.aws_vpc.main.id
-#   health_check {
-#     path                = "/"
-#     protocol            = "HTTP"
-#     matcher             = "200"
-#     interval            = 15
-#     timeout             = 3
-#     healthy_threshold   = 2
-#     unhealthy_threshold = 2
-#   }
-# }
+  target_group_arns = [aws_lb_target_group.asg.arn]
 
-# # define a listener for the above Application Load Balancer
-# resource "aws_lb_listener" "http" {
-#   load_balancer_arn = aws_lb.example.arn
-#   port              = 80
-#   protocol          = "HTTP"
-#   default_action {
-#     type             = "forward"
-#     target_group_arn = aws_lb_target_group.asg.arn
-#   }
-# }
+  health_check_type = "ELB"
 
+  min_size = 2
+  max_size = 2
+  #desired_capacity = 2
+
+  tag {
+    key                 = "Name"
+    value               = "terraform-asg-example"
+    propagate_at_launch = true
+  }
+
+  launch_template {
+    id      = aws_launch_template.example.id
+    version = "$Latest"
+  }
+}
+
+#Amazon’s Elastic Load Balancer (ELB)
+resource "aws_lb" "example" {
+  name               = "terraform-asg-example"
+  load_balancer_type = "application"
+  subnets            = data.aws_subnets.default.ids
+  security_groups    = [aws_security_group.alb.id]
+}
+
+# create a target group for ASG
+resource "aws_lb_target_group" "asg" {
+  name     = "terraform-asg-example"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.main.id
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 15
+    timeout             = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+}
+
+# define a listener for the above Application Load Balancer
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.example.arn
+  port              = 80
+  protocol          = "HTTP"
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.asg.arn
+  }
+}

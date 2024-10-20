@@ -1,18 +1,18 @@
-# output "Load_Balancer_DNS" {
-#   value       = aws_lb.example.dns_name
-#   description = "The domain name of the load balancer"
+output "Load_Balancer_DNS" {
+  value       = aws_lb.example.dns_name
+  description = "The domain name of the load balancer"
+}
+
+# output "Default_VPC_ID" {
+#   value       = data.aws_vpc.main.id
+#   description = "The ID of the default VPC"
 # }
 
-output "Default_VPC_ID" {
-  value       = data.aws_vpc.main.id
-  description = "The ID of the default VPC"
-}
-
-# Output the IDs of all subnets in the default VPC
-output "default_vpc_subnet_ids" {
-  value       = data.aws_subnets.default.ids
-  description = "The IDs of all subnets within the default VPC"
-}
+# # Output the IDs of all subnets in the default VPC
+# output "default_vpc_subnet_ids" {
+#   value       = data.aws_subnets.default.ids
+#   description = "The IDs of all subnets within the default VPC"
+# }
 
 # output "EIP_Main_Instance" {
 #   value       = aws_eip.ElasticIP.public_ip
