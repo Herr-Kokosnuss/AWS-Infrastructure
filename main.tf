@@ -80,7 +80,9 @@ resource "aws_launch_template" "example" {
     security_groups             = [aws_security_group.alb.id]
   }
 
-  user_data = base64encode(file("userdata.sh"))
+  user_data = base64encode(templatefile("userdata.sh", {
+    efs_id = aws_efs_file_system.example.id
+  }))
 
   tag_specifications {
     resource_type = "instance"
@@ -130,6 +132,16 @@ resource "aws_autoscaling_group" "example" {
   }
 }
 
+# Retrieve the instances in the ASG to get IPs
+data "aws_instances" "asg_instances" {
+  instance_tags = {
+    "aws:autoscaling:groupName" = aws_autoscaling_group.example.name
+  }
+
+  instance_state_names = ["running"]
+
+  depends_on = [aws_autoscaling_group.example]
+}
 #Amazon’s Elastic Load Balancer (ELB)
 resource "aws_lb" "example" {
   name               = "terraform-asg-example"
@@ -164,4 +176,22 @@ resource "aws_lb_listener" "http" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.asg.arn
   }
+}
+
+# Create EFS File System
+resource "aws_efs_file_system" "example" {
+  creation_token = "my-efs"
+  encrypted      = true
+
+  tags = {
+    Name = "MyEFS"
+  }
+}
+
+# Create EFS Mount Targets
+resource "aws_efs_mount_target" "example" {
+  count           = length(data.aws_subnets.default.ids)
+  file_system_id  = aws_efs_file_system.example.id
+  subnet_id       = data.aws_subnets.default.ids[count.index]
+  security_groups = [aws_security_group.alb.id]
 }

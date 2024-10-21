@@ -6,31 +6,40 @@ echo "Starting user data script execution"
 yum update -y
 echo "System updated"
 
-# Install Apache
-yum install -y httpd
-echo "Apache installed"
+# Install Apache and Amazon EFS utilities
+yum install -y httpd amazon-efs-utils
+echo "Apache and EFS utils installed"
 
 # Start Apache service
 systemctl start httpd
 systemctl enable httpd
 echo "Apache started and enabled"
 
-# Create a simple index.html file
-echo '<!DOCTYPE html>' > /var/www/html/index.html
-echo '<html lang="en">' >> /var/www/html/index.html
+# Mount EFS
+mkdir -p /mnt/efs
+mount -t efs -o tls ${efs_id}:/ /mnt/efs
+echo "${efs_id}:/ /mnt/efs efs defaults,_netdev 0 0" >> /etc/fstab
 
-echo '<head>' >> /var/www/html/index.html
-echo '<title>Froggy for life...</title>' >> /var/www/html/index.html
-echo '</head>' >> /var/www/html/index.html
+echo "EFS mounted"
 
-echo '<body style="background-color:white;">' >> /var/www/html/index.html
-echo '  <h1 style="color:green;">Welcome to My Web Server...Humans!</h1>' >> /var/www/html/index.html
-echo '<img src="frog-png.png" alt="Frog Photo">' >> /var/www/html/index.html
+# Create a simple index.html file on EFS
+echo '<!DOCTYPE html>' > /mnt/efs/index.html
+echo '<html lang="en">' >> /mnt/efs/index.html
+echo '<head>' >> /mnt/efs/index.html
+echo '<title>Froggy for life...</title>' >> /mnt/efs/index.html
+echo '</head>' >> /mnt/efs/index.html
+echo '<body style="background-color:white;">' >> /mnt/efs/index.html
+echo '  <h1 style="color:green;">Welcome to My Web Server...Humans!</h1>' >> /mnt/efs/index.html
+echo '<img src="frog-png.png" alt="Frog Photo">' >> /mnt/efs/index.html
+echo '</body>' >> /mnt/efs/index.html
+echo '</html>' >> /mnt/efs/index.html
+echo "Index.html file created on EFS"
 
-echo '</body>' >> /var/www/html/index.html
-echo '</html>' >> /var/www/html/index.html
+# Download the frog image to EFS
+curl -o /mnt/efs/frog-png.png https://i.postimg.cc/hjCvPX9T/frog-png.png
 
-echo "Index.html file created"
+# Create symbolic links from the Apache document root to the EFS mount
+ln -s /mnt/efs/index.html /var/www/html/index.html
+ln -s /mnt/efs/frog-png.png /var/www/html/frog-png.png
 
 echo "User data script execution completed"
-curl -o /var/www/html/frog-png.png https://i.postimg.cc/hjCvPX9T/frog-png.png

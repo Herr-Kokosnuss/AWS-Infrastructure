@@ -7324,3 +7324,4 @@ aws/dist/lib-dynload/select.cpython-312-x86_64-linux-gnu.so
 aws/dist/lib-dynload/termios.cpython-312-x86_64-linux-gnu.so
 aws/dist/lib-dynload/unicodedata.cpython-312-x86_64-linux-gnu.so
 aws/dist/lib-dynload/zlib.cpython-312-x86_64-linux-gnu.so
+efs-utils
