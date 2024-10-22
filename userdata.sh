@@ -42,4 +42,35 @@ curl -o /mnt/efs/frog-png.png https://i.postimg.cc/hjCvPX9T/frog-png.png
 ln -s /mnt/efs/index.html /var/www/html/index.html
 ln -s /mnt/efs/frog-png.png /var/www/html/frog-png.png
 
+# Install CloudWatch agent
+yum install -y amazon-cloudwatch-agent
+
+# Create CloudWatch agent configuration file
+cat <<EOF > /opt/aws/amazon-cloudwatch-agent/bin/config.json
+{
+  "agent": {
+    "metrics_collection_interval": 60
+  },
+  "metrics": {
+    "namespace": "CustomMetrics",
+    "metrics_collected": {
+      "mem": {
+        "measurement": [
+          {"name": "mem_used_percent", "unit": "Percent"}
+        ],
+        "metrics_collection_interval": 60
+      }
+    },
+    "append_dimensions": {
+      "AutoScalingGroupName": "$${aws:AutoScalingGroupName}"
+    }
+  }
+}
+EOF
+
+# Start CloudWatch agent
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
+
+echo "CloudWatch agent configured and started"
+
 echo "User data script execution completed"

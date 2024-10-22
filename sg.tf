@@ -16,7 +16,7 @@ resource "aws_security_group" "alb" {
     from_port   = 2049
     to_port     = 2049
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Consider restricting this to your VPC CIDR
+    cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your VPC CIDR
     description = "Allow inbound NFS traffic for EFS"
   }
 
@@ -33,7 +33,7 @@ resource "aws_security_group" "alb" {
     from_port   = 2049
     to_port     = 2049
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Consider restricting this to your VPC CIDR
+    cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your VPC CIDR
     description = "Allow outbound NFS traffic for EFS"
   }
 }
