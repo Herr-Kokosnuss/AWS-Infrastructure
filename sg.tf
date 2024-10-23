@@ -1,26 +1,18 @@
 ######### Security Groups ######
 # Creating a security group for the Application Load Balancer and EFS
 resource "aws_security_group" "alb" {
-  name = "terraform-example-alb-and-efs"
+  name        = "terraform-example-alb"
+  description = "Security group for ALB"
+  vpc_id      = aws_vpc.main.id
 
-  # Existing wide-open ingress rule
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    description = "Allow HTTP from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # EFS-specific ingress rule
-  ingress {
-    from_port   = 2049
-    to_port     = 2049
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your VPC CIDR
-    description = "Allow inbound NFS traffic for EFS"
-  }
-
-  # Existing wide-open egress rule
   egress {
     from_port   = 0
     to_port     = 0
@@ -28,37 +20,67 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # EFS-specific egress rule
-  egress {
-    from_port   = 2049
-    to_port     = 2049
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Consider restricting this to your VPC CIDR
-    description = "Allow outbound NFS traffic for EFS"
+  tags = {
+    Name = "ALB Security Group"
   }
 }
-#
-# Creating a security group for the instance
-# resource "aws_security_group" "test" {
-#   name = "terraform-example-instance"
-#   # ingress {
-#   #   from_port   = 8080
-#   #   to_port     = 8080
-#   #   protocol    = "tcp"
-#   #   cidr_blocks = ["0.0.0.0/0"]
-#   # }
-#    ingress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
-#   # Allow all outbound requests
-#   egress {
-#     from_port   = 0
-#     to_port     = 0
-#     protocol    = "-1"
-#     cidr_blocks = ["0.0.0.0/0"]
-#   }
 
-# }
+# Security Group for EC2 instances
+resource "aws_security_group" "ec2" {
+  name        = "terraform-example-ec2"
+  description = "Security group for EC2 instances"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Allow HTTP from ALB"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  ingress {
+    description = "Allow SSH from anywhere (consider restricting this in production)"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "EC2 Security Group"
+  }
+}
+
+# Security Group for EFS
+resource "aws_security_group" "efs" {
+  name        = "terraform-example-efs"
+  description = "Security group for EFS"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Allow NFS traffic from EC2 instances"
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "EFS Security Group"
+  }
+}

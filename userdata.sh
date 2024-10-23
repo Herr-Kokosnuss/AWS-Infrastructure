@@ -15,7 +15,7 @@ sudo systemctl enable httpd
 sudo mkdir -p /mnt/efs
 
 # Mount EFS with specific options
-sudo mount -t efs -o tls,iam ${efs_id}:/ /mnt/efs
+sudo mount -t efs -o tls ${efs_id}:/ /mnt/efs
 
 # Add mount to fstab for persistence across reboots
 echo "${efs_id}:/ /mnt/efs efs defaults,_netdev 0 0" | sudo tee -a /etc/fstab

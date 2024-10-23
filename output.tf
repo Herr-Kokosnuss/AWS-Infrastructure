@@ -2,7 +2,6 @@ output "Load_Balancer_DNS" {
   value       = aws_lb.example.dns_name
   description = "The domain name of the load balancer"
 }
-
 output "asg_name" {
   value       = aws_autoscaling_group.example.name
   description = "The name of the Auto Scaling Group"
@@ -28,8 +27,20 @@ output "grafana_cloudwatch_secret_access_key" {
 output "grafana_cloudwatch_access_key_id" {
   value = aws_iam_access_key.grafana_cloudwatch.id
 }
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = aws_vpc.main.id
+}
 
+output "public_subnet_ids" {
+  description = "The IDs of the public subnets"
+  value       = aws_subnet.public[*].id
+}
 
+output "private_subnet_ids" {
+  description = "The IDs of the private subnets"
+  value       = aws_subnet.private[*].id
+}
 # output "Default_VPC_ID" {
 #   value       = data.aws_vpc.main.id
 #   description = "The ID of the default VPC"
@@ -64,5 +75,7 @@ output "grafana_cloudwatch_access_key_id" {
 # value = aws_db_instance.example.port
 # description = "The port the database is listening on"
 # }
+
+
 
 

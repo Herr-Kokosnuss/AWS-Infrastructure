@@ -66,7 +66,8 @@ resource "aws_launch_template" "example" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [aws_security_group.alb.id]
+    security_groups             = [aws_security_group.ec2.id]
+    subnet_id                   = aws_subnet.public[0].id  # Use the first public subnet
   }
 
   #if no admin access in iam role, this needs to be here.
@@ -104,7 +105,7 @@ resource "aws_launch_template" "example" {
 # }
 resource "aws_autoscaling_group" "example" {
 
-  vpc_zone_identifier = data.aws_subnets.default.ids
+  vpc_zone_identifier = aws_subnet.public[*].id  # Use all public subnets
 
   target_group_arns = [aws_lb_target_group.asg.arn]
 
@@ -140,7 +141,7 @@ data "aws_instances" "asg_instances" {
 resource "aws_lb" "example" {
   name               = "terraform-asg-example"
   load_balancer_type = "application"
-  subnets            = data.aws_subnets.default.ids
+  subnets            = aws_subnet.public[*].id
   security_groups    = [aws_security_group.alb.id]
 }
 
@@ -149,7 +150,7 @@ resource "aws_lb_target_group" "asg" {
   name     = "terraform-asg-example"
   port     = 80
   protocol = "HTTP"
-  vpc_id   = data.aws_vpc.main.id
+  vpc_id   = aws_vpc.main.id
   health_check {
     path                = "/"
     protocol            = "HTTP"
@@ -184,8 +185,8 @@ resource "aws_efs_file_system" "example" {
 
 # Create EFS Mount Targets
 resource "aws_efs_mount_target" "example" {
-  count           = length(data.aws_subnets.default.ids)
+  count           = length(aws_subnet.private)
   file_system_id  = aws_efs_file_system.example.id
-  subnet_id       = data.aws_subnets.default.ids[count.index]
-  security_groups = [aws_security_group.alb.id]
+  subnet_id       = aws_subnet.private[count.index].id
+  security_groups = [aws_security_group.efs.id]
 }

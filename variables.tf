@@ -25,7 +25,7 @@ variable "private_subnet_cidrs" {
 variable "availability_zones" {
   description = "List of availability zones"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b"] # Update these to match your region
+  default     = ["us-east-1a", "us-east-1b", "us-east-1c", "us-east-1d", "us-east-1e", "us-east-1f"] # Update these to match your region
 }
 
 # variable "db_username" {
@@ -39,18 +39,6 @@ variable "availability_zones" {
 #   type        = string
 #   sensitive   = true
 # }
-
-
-
-
-
-
-
-
-
-
-
-
 
 # # creating ami variable
 # variable "ami" {
