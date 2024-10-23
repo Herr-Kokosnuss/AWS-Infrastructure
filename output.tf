@@ -3,6 +3,10 @@ output "Load_Balancer_DNS" {
   description = "The domain name of the load balancer"
 }
 
+output "asg_name" {
+  value       = aws_autoscaling_group.example.name
+  description = "The name of the Auto Scaling Group"
+}
 output "ASG_instance_public_ips" {
   description = "Public IP addresses of instances in the ASG"
   value       = data.aws_instances.asg_instances.public_ips
@@ -24,6 +28,8 @@ output "grafana_cloudwatch_secret_access_key" {
 output "grafana_cloudwatch_access_key_id" {
   value = aws_iam_access_key.grafana_cloudwatch.id
 }
+
+
 # output "Default_VPC_ID" {
 #   value       = data.aws_vpc.main.id
 #   description = "The ID of the default VPC"
@@ -60,7 +66,3 @@ output "grafana_cloudwatch_access_key_id" {
 # }
 
 
-output "asg_name" {
-  value       = aws_autoscaling_group.example.name
-  description = "The name of the Auto Scaling Group"
-}
