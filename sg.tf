@@ -40,7 +40,7 @@ resource "aws_security_group" "ec2" {
   }
 
   ingress {
-    description = "Allow SSH from anywhere (consider restricting this in production)"
+    description = "Allow SSH from anywhere"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
