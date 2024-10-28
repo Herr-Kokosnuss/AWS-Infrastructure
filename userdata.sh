@@ -7,26 +7,58 @@ echo "Starting user data script execution"
 sudo yum update -y
 sudo yum install -y amazon-efs-utils httpd
 
+# Create mount directory
+sudo mkdir -p /mnt/efs
+echo "Mount directory created"
+
+# Wait for EFS to be available
+MAX_RETRIES=12
+RETRY_INTERVAL=10
+retry_count=0
+
+while [ $retry_count -lt $MAX_RETRIES ]; do
+    if sudo mount -t efs -o tls ${efs_id}:/ /mnt/efs; then
+        echo "EFS mounted successfully"
+        break
+    else
+        echo "EFS mount attempt $((retry_count + 1)) failed, retrying in $RETRY_INTERVAL seconds..."
+        sleep $RETRY_INTERVAL
+        retry_count=$((retry_count + 1))
+    fi
+done
+
+if [ $retry_count -eq $MAX_RETRIES ]; then
+    echo "Failed to mount EFS after $MAX_RETRIES attempts"
+    exit 1
+fi
+
+# Verify mount
+if mountpoint -q /mnt/efs; then
+    echo "EFS is mounted at /mnt/efs"
+else
+    echo "EFS mount verification failed"
+    exit 1
+fi
+
+# Add mount to fstab for persistence
+echo "${efs_id}:/ /mnt/efs efs _netdev,tls,iam 0 0" | sudo tee -a /etc/fstab
+
+# Set proper permissions
+sudo usermod -a -G apache ec2-user
+sudo chown -R ec2-user:apache /mnt/efs
+sudo chmod 2775 /mnt/efs
+find /mnt/efs -type d -exec sudo chmod 2775 {} \;
+find /mnt/efs -type f -exec sudo chmod 0664 {} \;
+
 # Start and enable Apache
 sudo systemctl start httpd
 sudo systemctl enable httpd
 
-# Create mount directory
-sudo mkdir -p /mnt/efs
+# Create symbolic link for the web root
+sudo rm -rf /var/www/html
+sudo ln -s /mnt/efs /var/www/html
 
-# Mount EFS with specific options
-sudo mount -t efs -o tls ${efs_id}:/ /mnt/efs
-
-# Add mount to fstab for persistence across reboots
-echo "${efs_id}:/ /mnt/efs efs defaults,_netdev 0 0" | sudo tee -a /etc/fstab
-
-# Mount the EFS file system
-sudo mount -a
-
-# Set permissions
-sudo chmod 777 /mnt/efs
-
-# Create a simple index.html file on EFS
+# Create index.html and download image
 cat <<EOF > /mnt/efs/index.html
 <!DOCTYPE html>
 <html lang="en">
@@ -39,14 +71,14 @@ cat <<EOF > /mnt/efs/index.html
 </body>
 </html>
 EOF
-echo "Index.html file created on EFS"
 
-# Download the frog image to EFS
 curl -o /mnt/efs/frog-png.png https://i.postimg.cc/hjCvPX9T/frog-png.png
 
-# Create symbolic links from the Apache document root to the EFS mount
-sudo ln -sf /mnt/efs/index.html /var/www/html/index.html
-sudo ln -sf /mnt/efs/frog-png.png /var/www/html/frog-png.png
+# Verify files exist
+if [ ! -f /mnt/efs/index.html ] || [ ! -f /mnt/efs/frog-png.png ]; then
+    echo "Failed to create required files"
+    exit 1
+fi
 
 # Install and configure CloudWatch agent
 sudo yum install -y amazon-cloudwatch-agent
