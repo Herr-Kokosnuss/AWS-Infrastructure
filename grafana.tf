@@ -156,3 +156,9 @@ resource "aws_iam_instance_profile" "cloudwatch_agent_profile" {
   name = "cloudwatch-agent-profile"
   role = aws_iam_role.cloudwatch_agent_role.name
 }
+
+# Add ECR policy to the existing CloudWatch agent role
+resource "aws_iam_role_policy_attachment" "ecr_policy" {
+  role       = aws_iam_role.cloudwatch_agent_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}

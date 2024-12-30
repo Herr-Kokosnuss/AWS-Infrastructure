@@ -5,113 +5,65 @@ echo "Starting user data script execution"
 
 # Install necessary packages
 sudo yum update -y
-sudo yum install -y amazon-efs-utils httpd
+sudo yum install -y amazon-efs-utils docker wget ca-certificates
 
-# Create mount directory
-sudo mkdir -p /mnt/efs
-echo "Mount directory created"
+# Start Docker service
+sudo systemctl start docker
+sudo systemctl enable docker
 
-# Wait for EFS to be available
-MAX_RETRIES=12
-RETRY_INTERVAL=10
-retry_count=0
+# Add ec2-user to docker group
+sudo usermod -a -G docker ec2-user
 
-while [ $retry_count -lt $MAX_RETRIES ]; do
-    if sudo mount -t efs -o tls ${efs_id}:/ /mnt/efs; then
-        echo "EFS mounted successfully"
-        break
-    else
-        echo "EFS mount attempt $((retry_count + 1)) failed, retrying in $RETRY_INTERVAL seconds..."
-        sleep $RETRY_INTERVAL
-        retry_count=$((retry_count + 1))
-    fi
-done
+# Install AWS CLI
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
 
-if [ $retry_count -eq $MAX_RETRIES ]; then
-    echo "Failed to mount EFS after $MAX_RETRIES attempts"
-    exit 1
-fi
+# Install GoTTY directly from release
+wget https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz
+tar -xzf gotty_linux_amd64.tar.gz
+sudo mv gotty /usr/local/bin/
+sudo chmod +x /usr/local/bin/gotty
 
-# Verify mount
-if mountpoint -q /mnt/efs; then
-    echo "EFS is mounted at /mnt/efs"
-else
-    echo "EFS mount verification failed"
-    exit 1
-fi
+# Configure AWS ECR authentication
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 730335255832.dkr.ecr.us-east-1.amazonaws.com
 
-# Add mount to fstab for persistence
-echo "${efs_id}:/ /mnt/efs efs _netdev,tls,iam 0 0" | sudo tee -a /etc/fstab
+# Pull the Docker image
+docker pull 730335255832.dkr.ecr.us-east-1.amazonaws.com/trip-planner:latest
 
-# Set proper permissions
-sudo usermod -a -G apache ec2-user
-sudo chown -R ec2-user:apache /mnt/efs
-sudo chmod 2775 /mnt/efs
-find /mnt/efs -type d -exec sudo chmod 2775 {} \;
-find /mnt/efs -type f -exec sudo chmod 0664 {} \;
-
-# Start and enable Apache
-sudo systemctl start httpd
-sudo systemctl enable httpd
-
-# Create symbolic link for the web root
-sudo rm -rf /var/www/html
-sudo ln -s /mnt/efs /var/www/html
-
-# Create index.html and download image
-cat <<EOF > /mnt/efs/index.html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>Froggy for life...</title>
-</head>
-<body style="background-color:white;">
-  <h1 style="color:green;">Welcome to My Web Server...Humans!</h1>
-<img src="frog-png.png" alt="Frog Photo">
-</body>
-</html>
+# Create a startup script for GoTTY
+cat <<EOF > /home/ec2-user/start-gotty.sh
+#!/bin/bash
+gotty -w -p 8080 docker run -it --rm \
+  -v /etc/ssl/certs:/etc/ssl/certs:ro \
+  -e SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+  -e REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+  -e CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+  730335255832.dkr.ecr.us-east-1.amazonaws.com/trip-planner:latest
 EOF
 
-curl -o /mnt/efs/frog-png.png https://i.postimg.cc/hjCvPX9T/frog-png.png
+chmod +x /home/ec2-user/start-gotty.sh
 
-# Verify files exist
-if [ ! -f /mnt/efs/index.html ] || [ ! -f /mnt/efs/frog-png.png ]; then
-    echo "Failed to create required files"
-    exit 1
-fi
+# Create systemd service for GoTTY
+cat <<EOF > /etc/systemd/system/gotty.service
+[Unit]
+Description=GoTTY Service
+After=network.target docker.service
 
-# Install and configure CloudWatch agent
-sudo yum install -y amazon-cloudwatch-agent
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/home/ec2-user
+ExecStart=/home/ec2-user/start-gotty.sh
+Restart=always
 
-# Create CloudWatch agent configuration file
-sudo tee /opt/aws/amazon-cloudwatch-agent/bin/config.json > /dev/null <<EOF
-{
-  "agent": {
-    "metrics_collection_interval": 60,
-    "run_as_user": "root"
-  },
-  "metrics": {
-    "namespace": "CustomMetrics",
-    "metrics_collected": {
-      "mem": {
-        "measurement": [
-          {"name": "mem_used_percent", "unit": "Percent"}
-        ],
-        "metrics_collection_interval": 60
-      }
-    },
-    "append_dimensions": {
-      "AutoScalingGroupName": "\$${aws:AutoScalingGroupName}"
-    }
-  }
-}
+[Install]
+WantedBy=multi-user.target
 EOF
 
-# Start CloudWatch agent with the new configuration
-sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+# Start and enable GoTTY service
+sudo systemctl daemon-reload
+sudo systemctl start gotty
+sudo systemctl enable gotty
 
-# Ensure CloudWatch agent starts on boot
-sudo systemctl enable amazon-cloudwatch-agent
-
-echo "CloudWatch agent configured and started"
 echo "User data script execution completed"
