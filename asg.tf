@@ -1,8 +1,8 @@
 #Define the launch template
-resource "aws_launch_template" "example" {
-  name_prefix   = "example-"
+resource "aws_launch_template" "Cocoplanner" {
+  name_prefix   = "Cocoplanner-"
   image_id      = var.ami
-  instance_type = "t2.medium"
+  instance_type = "t2.small"
   key_name      = aws_key_pair.main_key.key_name
 
   block_device_mappings {
@@ -36,15 +36,15 @@ resource "aws_launch_template" "example" {
   }
 }
 
-resource "aws_autoscaling_group" "example" {
+resource "aws_autoscaling_group" "Cocoplanner" {
   vpc_zone_identifier = aws_subnet.public[*].id
 
   target_group_arns = [aws_lb_target_group.asg.arn]
   health_check_type = "ELB"
 
-  min_size = 2
-  max_size = 2
-  desired_capacity = 2
+  min_size = 1
+  max_size = 1
+  desired_capacity = 1
 
   tag {
     key                 = "Name"
@@ -53,7 +53,7 @@ resource "aws_autoscaling_group" "example" {
   }
 
   launch_template {
-    id      = aws_launch_template.example.id
+    id      = aws_launch_template.Cocoplanner.id
     version = "$Latest"
   }
 }
@@ -61,10 +61,10 @@ resource "aws_autoscaling_group" "example" {
 # Retrieve the instances in the ASG to get IPs
 data "aws_instances" "asg_instances" {
   instance_tags = {
-    "aws:autoscaling:groupName" = aws_autoscaling_group.example.name
+    "aws:autoscaling:groupName" = aws_autoscaling_group.Cocoplanner.name
   }
 
   instance_state_names = ["running"]
 
-  depends_on = [aws_autoscaling_group.example]
+  depends_on = [aws_autoscaling_group.Cocoplanner]
 } 

@@ -1,6 +1,6 @@
 # S3 bucket with versioning enabled, AES256 encryption, and block public access.
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "terraform-state-8520" #should be unique
+  bucket = "terraform-state-1996"
   lifecycle {
     prevent_destroy = false
   }

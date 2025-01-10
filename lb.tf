@@ -1,5 +1,5 @@
 #Amazon's Elastic Load Balancer (ELB)
-resource "aws_lb" "example" {
+resource "aws_lb" "Cocoplanner" {
   name               = "Cocoplanner"
   load_balancer_type = "application"
   subnets            = aws_subnet.public[*].id
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "asg" {
 
 # define a listener for the above Application Load Balancer
 resource "aws_lb_listener" "http" {
-  load_balancer_arn = aws_lb.example.arn
+  load_balancer_arn = aws_lb.Cocoplanner.arn
   port              = 80
   protocol          = "HTTP"
   default_action {
