@@ -61,16 +61,25 @@
 resource "aws_launch_template" "example" {
   name_prefix   = "example-"
   image_id      = var.ami
-  instance_type = "t2.micro"
-  key_name      = aws_key_pair.main_key.key_name // Add this line
+  instance_type = "t2.medium"
+  key_name      = aws_key_pair.main_key.key_name
+
+  # Add block device mapping for root volume
+  block_device_mappings {
+    device_name = "/dev/xvda"  # Root volume device name for Amazon Linux 2
+    ebs {
+      volume_size = 15    # Size in GB (increase this value as needed)
+      volume_type = "gp3" # GP3 is more cost-effective than GP2
+      encrypted   = true
+    }
+  }
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [aws_security_group.ec2.id]
-    subnet_id                   = aws_subnet.public[0].id  # Use the first public subnet
+    security_groups            = [aws_security_group.ec2.id]
+    subnet_id                  = aws_subnet.public[0].id
   }
 
-  #if no admin access in iam role, this needs to be here.
   iam_instance_profile {
     name = aws_iam_instance_profile.cloudwatch_agent_profile.name
   }
@@ -82,7 +91,7 @@ resource "aws_launch_template" "example" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "terraform-asg-example"
+      Name = "Cocoplanner"
     }
   }
 }
@@ -117,7 +126,7 @@ resource "aws_autoscaling_group" "example" {
 
   tag {
     key                 = "Name"
-    value               = "terraform-asg-example"
+    value               = "Cocoplanner"
     propagate_at_launch = true
   }
 
@@ -139,7 +148,7 @@ data "aws_instances" "asg_instances" {
 }
 #Amazon’s Elastic Load Balancer (ELB)
 resource "aws_lb" "example" {
-  name               = "terraform-asg-example"
+  name               = "Cocoplanner"
   load_balancer_type = "application"
   subnets            = aws_subnet.public[*].id
   security_groups    = [aws_security_group.alb.id]
@@ -147,7 +156,7 @@ resource "aws_lb" "example" {
 
 # create a target group for ASG
 resource "aws_lb_target_group" "asg" {
-  name     = "terraform-asg-example"
+  name     = "Cocoplanner"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -155,11 +164,12 @@ resource "aws_lb_target_group" "asg" {
     path                = "/"
     protocol            = "HTTP"
     matcher             = "200,301,302"
-    interval            = 15
-    timeout             = 3
+    interval            = 30
+    timeout             = 10
     healthy_threshold   = 2
-    unhealthy_threshold = 2
+    unhealthy_threshold = 4
   }
+  
 }
 
 # define a listener for the above Application Load Balancer
