@@ -16,8 +16,8 @@ resource "aws_launch_template" "Cocoplanner" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups            = [aws_security_group.ec2.id]
-    subnet_id                  = aws_subnet.public[0].id
+    security_groups             = [aws_security_group.ec2.id]
+    subnet_id                   = aws_subnet.public[0].id
   }
 
   iam_instance_profile {
@@ -25,7 +25,7 @@ resource "aws_launch_template" "Cocoplanner" {
   }
 
   user_data = base64encode(templatefile("userdata.sh", {
-    efs_id = aws_efs_file_system.example.id
+    efs_id = aws_efs_file_system.Cocoplanner.id
   }))
 
   tag_specifications {
@@ -42,8 +42,8 @@ resource "aws_autoscaling_group" "Cocoplanner" {
   target_group_arns = [aws_lb_target_group.asg.arn]
   health_check_type = "ELB"
 
-  min_size = 1
-  max_size = 1
+  min_size         = 1
+  max_size         = 1
   desired_capacity = 1
 
   tag {

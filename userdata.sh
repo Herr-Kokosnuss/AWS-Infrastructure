@@ -5,7 +5,7 @@ echo "Starting user data script execution"
 
 # Install necessary packages
 sudo yum update -y
-sudo yum install -y amazon-efs-utils docker wget ca-certificates
+sudo yum install -y amazon-efs-utils docker wget
 
 # Start Docker service
 sudo systemctl start docker
@@ -29,17 +29,13 @@ sudo chmod +x /usr/local/bin/gotty
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 730335255832.dkr.ecr.us-east-1.amazonaws.com
 
 # Pull the Docker image
-docker pull 730335255832.dkr.ecr.us-east-1.amazonaws.com/trip-planner5:latest
+docker pull 730335255832.dkr.ecr.us-east-1.amazonaws.com/cocoplanner:latest
 
 # Create a startup script for GoTTY
 cat <<EOF > /home/ec2-user/start-gotty.sh
 #!/bin/bash
 gotty -w -p 8080 docker run -it --rm \
-  -v /etc/ssl/certs:/etc/ssl/certs:ro \
-  -e SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
-  -e REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
-  -e CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
-  730335255832.dkr.ecr.us-east-1.amazonaws.com/trip-planner5:latest
+  730335255832.dkr.ecr.us-east-1.amazonaws.com/cocoplanner:latest
 EOF
 
 chmod +x /home/ec2-user/start-gotty.sh

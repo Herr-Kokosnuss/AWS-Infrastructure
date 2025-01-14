@@ -1,9 +1,9 @@
 output "Load_Balancer_DNS" {
-  value       = aws_lb.example.dns_name
+  value       = aws_lb.Cocoplanner.dns_name
   description = "The domain name of the load balancer"
 }
 output "asg_name" {
-  value       = aws_autoscaling_group.example.name
+  value       = aws_autoscaling_group.Cocoplanner.name
   description = "The name of the Auto Scaling Group"
 }
 output "ASG_instance_public_ips" {
@@ -17,7 +17,7 @@ output "ASG_instance_ids" {
 
 output "efs_id" {
   description = "ID of the Elastic File System"
-  value       = aws_efs_file_system.example.id
+  value       = aws_efs_file_system.Cocoplanner.id
 }
 
 output "grafana_cloudwatch_secret_access_key" {
@@ -55,15 +55,6 @@ output "public_subnet_ids" {
 # output "EIP_Main_Instance" {
 #   value       = aws_eip.ElasticIP.public_ip
 #   description = "The public IP address of the Elastic IP"
-# }
-
-# output "s3_bucket_arn" {
-#   value       = aws_s3_bucket.terraform_state.arn
-#   description = "The ARN of the S3 bucket"
-# }
-# output "dynamodb_table_name" {
-#   value       = aws_dynamodb_table.terraform_locks.name
-#   description = "The name of the DynamoDB table"
 # }
 
 # output "address" {

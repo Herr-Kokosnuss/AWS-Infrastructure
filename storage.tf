@@ -4,7 +4,7 @@ resource "aws_efs_file_system" "Cocoplanner" {
   encrypted      = true
 
   tags = {
-    Name = "MyEFS"
+    Name = "Cocoplanner"
   }
 }
 

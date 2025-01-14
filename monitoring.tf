@@ -6,13 +6,13 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
   metric_name         = "CPUUtilization"
   namespace           = "AWS/EC2"
   period              = "300"
-  statistic          = "Average"
-  threshold          = "80"
+  statistic           = "Average"
+  threshold           = "80"
   alarm_description   = "This metric monitors EC2 CPU utilization"
   alarm_actions       = [aws_sns_topic.asg_alarms.arn]
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.example.name
+    AutoScalingGroupName = aws_autoscaling_group.Cocoplanner.name
   }
 }
 
@@ -24,13 +24,13 @@ resource "aws_cloudwatch_metric_alarm" "efs_disk_usage" {
   metric_name         = "PercentIOLimit"
   namespace           = "AWS/EFS"
   period              = "300"
-  statistic          = "Average"
-  threshold          = "80"
+  statistic           = "Average"
+  threshold           = "80"
   alarm_description   = "This metric monitors EFS disk usage"
   alarm_actions       = [aws_sns_topic.asg_alarms.arn]
 
   dimensions = {
-    FileSystemId = aws_efs_file_system.example.id
+    FileSystemId = aws_efs_file_system.Cocoplanner.id
   }
 }
 
@@ -42,13 +42,13 @@ resource "aws_cloudwatch_metric_alarm" "memory_usage" {
   metric_name         = "mem_used_percent"
   namespace           = "CustomMetrics"
   period              = "300"
-  statistic          = "Average"
-  threshold          = "80"
+  statistic           = "Average"
+  threshold           = "80"
   alarm_description   = "This metric monitors EC2 memory usage"
   alarm_actions       = [aws_sns_topic.asg_alarms.arn]
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.example.name
+    AutoScalingGroupName = aws_autoscaling_group.Cocoplanner.name
   }
 }
 
@@ -61,5 +61,5 @@ resource "aws_sns_topic" "asg_alarms" {
 resource "aws_sns_topic_subscription" "asg_alarms_email" {
   topic_arn = aws_sns_topic.asg_alarms.arn
   protocol  = "email"
-  endpoint  = "ahmed.alsaeedi7890@gmail.com"
+  endpoint  = "cocolancer.build@gmail.com"
 } 
