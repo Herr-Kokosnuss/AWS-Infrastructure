@@ -68,5 +68,21 @@ output "public_subnet_ids" {
 # }
 
 
+#word press
+
+output "wordpress_public_ip" {
+  value       = aws_lightsail_static_ip.wordpress.ip_address
+  description = "Public IP address of the WordPress instance"
+}
+
+output "wordpress_username" {
+  value       = "bitnami"
+  description = "Default SSH username for the WordPress instance"
+}
+
+output "wordpress_instance_name" {
+  value       = aws_lightsail_instance.wordpress.name
+  description = "Instance name of the WordPress server"
+} 
 
 
