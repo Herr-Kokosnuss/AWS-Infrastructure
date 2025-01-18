@@ -16,8 +16,6 @@ sudo usermod -a -G docker ec2-user
 
 # Install AWS CLI
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
 
 # Install GoTTY directly from release
 wget https://github.com/yudai/gotty/releases/download/v1.0.1/gotty_linux_amd64.tar.gz
@@ -34,7 +32,9 @@ docker pull 730335255832.dkr.ecr.us-east-1.amazonaws.com/cocoplanner:latest
 # Create a startup script for GoTTY
 cat <<EOF > /home/ec2-user/start-gotty.sh
 #!/bin/bash
-gotty -w -p 8080 docker run -it --rm \
+gotty -w -p 8080 \
+  --title-format "Cocoplanner" \
+  docker run -it --rm \
   730335255832.dkr.ecr.us-east-1.amazonaws.com/cocoplanner:latest
 EOF
 

@@ -1,7 +1,7 @@
 variable "ami" {
   description = "Value of the AMI"
   type        = string
-  default     = "ami-01b799c439fd5516a" # Default AMI
+  default     = "ami-01b799c439fd5516a" # Amazon Linux 2 x86_64 AMI
 }
 
 variable "vpc_cidr" {

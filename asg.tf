@@ -8,7 +8,7 @@ resource "aws_launch_template" "Cocoplanner" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_size = 15
+      volume_size = 10
       volume_type = "gp3"
       encrypted   = true
     }
@@ -42,9 +42,9 @@ resource "aws_autoscaling_group" "Cocoplanner" {
   target_group_arns = [aws_lb_target_group.asg.arn]
   health_check_type = "ELB"
 
-  min_size         = 1
-  max_size         = 1
-  desired_capacity = 1
+  min_size         = 2
+  max_size         = 2
+  desired_capacity = 2
 
   tag {
     key                 = "Name"
@@ -55,6 +55,14 @@ resource "aws_autoscaling_group" "Cocoplanner" {
   launch_template {
     id      = aws_launch_template.Cocoplanner.id
     version = "$Latest"
+  }
+
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+      instance_warmup = 300
+    }
   }
 }
 
