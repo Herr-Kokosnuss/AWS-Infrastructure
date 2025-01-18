@@ -74,7 +74,3 @@ The infrastructure spans **multiple availability zones** for high availability.
 - **Automated instance refresh:** Keeps instances updated.
 - **User data script logging:** Tracks execution for debugging and maintenance.
 
----
-
-## Conclusion
-This project demonstrates a **production-grade infrastructure setup** using modern cloud practices and tools. It is optimized for hosting **containerized applications** with **high availability**, **scalability**, and **security** requirements.
