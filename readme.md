@@ -1,5 +1,11 @@
 # Cocoplanner - Cloud Infrastructure Project
 
+---
+> **❗ IMPORTANT: This repository consists of two branches:**
+> - `prod`: Contains the original ASG-based infrastructure
+> - `prod-k8`: Contains the Kubernetes-based infrastructure
+
+---
 ## Project Overview
 Cocoplanner is a containerized application deployed on **AWS** using **Infrastructure as Code (IaC)** with **Terraform**. The infrastructure is designed to be **highly available**, **scalable**, and **secure**, utilizing various AWS services and modern DevOps practices.
 
@@ -31,7 +37,6 @@ Cocoplanner is a containerized application deployed on **AWS** using **Infrastru
 - **RSA key pair management:** Provides secure node access
 - **Custom security groups:** Ensures network isolation
 - **IAM roles:** Facilitates secure service-to-service communication
-- **Kubernetes RBAC:** Fine-grained access control
 
 ---
 
