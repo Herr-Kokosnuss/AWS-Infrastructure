@@ -76,3 +76,46 @@ variable "github_repo" {
 #   type        = list(string)
 # }
 
+# Kubernetes secret variables
+variable "serper_api_key" {
+  description = "API key for Serper service"
+  type        = string
+  sensitive   = true
+}
+
+variable "openai_api_key" {
+  description = "API key for OpenAI service"
+  type        = string
+  sensitive   = true
+}
+
+variable "email_sender" {
+  description = "Email sender address"
+  type        = string
+  sensitive   = true
+}
+
+variable "email_password" {
+  description = "Email sender password"
+  type        = string
+  sensitive   = true
+}
+
+variable "amadeus_api_key" {
+  description = "API key for Amadeus service"
+  type        = string
+  sensitive   = true
+}
+
+variable "amadeus_api_secret" {
+  description = "API secret for Amadeus service"
+  type        = string
+  sensitive   = true
+}
+
+variable "mongodb_atlas_uri" {
+  description = "MongoDB Atlas connection URI"
+  type        = string
+  sensitive   = true
+}
+
