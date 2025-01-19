@@ -37,6 +37,7 @@ resource "aws_launch_template" "Cocoplanner" {
 }
 
 resource "aws_autoscaling_group" "Cocoplanner" {
+  name                = "Cocoplanner"
   vpc_zone_identifier = aws_subnet.public[*].id
 
   target_group_arns = [aws_lb_target_group.asg.arn]

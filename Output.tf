@@ -43,36 +43,15 @@ output "wordpress_public_ip" {
   description = "Public IP address of the WordPress instance"
 }
 
-# output "private_subnet_ids" {
-#   description = "The IDs of the private subnets"
-#   value       = aws_subnet.private[*].id
-# }
-# output "Default_VPC_ID" {
-#   value       = data.aws_vpc.main.id
-#   description = "The ID of the default VPC"
-# }
+# Output the automation credentials (github secrets)
+output "github_actions_access_key_id" {
+  value = aws_iam_access_key.github_actions_user.id
+}
 
-# # Output the IDs of all subnets in the default VPC
-# output "default_vpc_subnet_ids" {
-#   value       = data.aws_subnets.default.ids
-#   description = "The IDs of all subnets within the default VPC"
-# }
-
-# output "EIP_Main_Instance" {
-#   value       = aws_eip.ElasticIP.public_ip
-#   description = "The public IP address of the Elastic IP"
-# }
-
-# output "address" {
-# value = aws_db_instance.example.address
-# description = "Connect to the database at this endpoint"
-# }
-
-# output "port" {
-# value = aws_db_instance.example.port
-# description = "The port the database is listening on"
-# }
-
+output "github_actions_secret_access_key" {
+  value     = aws_iam_access_key.github_actions_user.secret
+  sensitive = true
+}
 
 
 

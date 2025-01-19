@@ -22,6 +22,12 @@ variable "public_subnet_cidrs" {
   default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
+# variables for automation
+variable "github_repo" {
+  description = "GitHub repository name in format: organization/repository"
+  type        = string
+  default     = "Herr-Kokosnuss/travel"  # Replace with your actual GitHub repo name
+}
 # variable "private_subnet_cidrs" {
 #   description = "CIDR blocks for the private subnets"
 #   type        = list(string)
@@ -69,3 +75,4 @@ variable "public_subnet_cidrs" {
 #   description = "The IDs of the default subnets"
 #   type        = list(string)
 # }
+

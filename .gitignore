@@ -13,3 +13,4 @@ AWS.code-workspace
 .terraform.lock.hcl
 keykey
 terraform.tfstate.backup
+asg-refresh-policy.json
