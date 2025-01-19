@@ -60,11 +60,12 @@ resource "kubernetes_deployment" "cocoplanner" {
           }
 
           # Environment variables referencing manually created secrets
+          # These secrets should be created manually in the app workspace using kubectl
           env {
             name = "SERPER_API_KEY"
             value_from {
               secret_key_ref {
-                name = "cocoplanner-secrets"  # This matches your manual secret name
+                name = "cocoplanner-secrets"
                 key  = "serper-api-key"
               }
             }

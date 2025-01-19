@@ -1,65 +1,47 @@
-# CloudWatch Alarm for CPU Utilization
-resource "aws_cloudwatch_metric_alarm" "cpu_utilization" {
-  alarm_name          = "asg-cpu-utilization"
+# CloudWatch Alarm for EKS CPU Utilization
+resource "aws_cloudwatch_metric_alarm" "eks_cpu_utilization" {
+  alarm_name          = "eks-cpu-utilization"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/EC2"
+  metric_name         = "pod_cpu_utilization"
+  namespace           = "ContainerInsights"
   period              = "300"
   statistic           = "Average"
   threshold           = "80"
-  alarm_description   = "This metric monitors EC2 CPU utilization"
-  alarm_actions       = [aws_sns_topic.asg_alarms.arn]
+  alarm_description   = "This metric monitors EKS pod CPU utilization"
+  alarm_actions       = [aws_sns_topic.eks_alarms.arn]
 
   dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.Cocoplanner.name
+    ClusterName = aws_eks_cluster.cocoplanner.name
   }
 }
 
-# CloudWatch Alarm for EFS Disk Usage
-resource "aws_cloudwatch_metric_alarm" "efs_disk_usage" {
-  alarm_name          = "efs-disk-usage"
+# CloudWatch Alarm for EKS Memory Usage
+resource "aws_cloudwatch_metric_alarm" "eks_memory_usage" {
+  alarm_name          = "eks-memory-usage"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
-  metric_name         = "PercentIOLimit"
-  namespace           = "AWS/EFS"
+  metric_name         = "pod_memory_utilization"
+  namespace           = "ContainerInsights"
   period              = "300"
   statistic           = "Average"
   threshold           = "80"
-  alarm_description   = "This metric monitors EFS disk usage"
-  alarm_actions       = [aws_sns_topic.asg_alarms.arn]
+  alarm_description   = "This metric monitors EKS pod memory usage"
+  alarm_actions       = [aws_sns_topic.eks_alarms.arn]
 
   dimensions = {
-    FileSystemId = aws_efs_file_system.Cocoplanner.id
-  }
-}
-
-# CloudWatch Alarm for Memory Usage
-resource "aws_cloudwatch_metric_alarm" "memory_usage" {
-  alarm_name          = "asg-memory-usage"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = "2"
-  metric_name         = "mem_used_percent"
-  namespace           = "CustomMetrics"
-  period              = "300"
-  statistic           = "Average"
-  threshold           = "80"
-  alarm_description   = "This metric monitors EC2 memory usage"
-  alarm_actions       = [aws_sns_topic.asg_alarms.arn]
-
-  dimensions = {
-    AutoScalingGroupName = aws_autoscaling_group.Cocoplanner.name
+    ClusterName = aws_eks_cluster.cocoplanner.name
   }
 }
 
 # Create an SNS topic for CloudWatch alarms
-resource "aws_sns_topic" "asg_alarms" {
-  name = "asg-alarms-topic"
+resource "aws_sns_topic" "eks_alarms" {
+  name = "eks-alarms-topic"
 }
 
 # Create an SNS topic subscription for email notifications
-resource "aws_sns_topic_subscription" "asg_alarms_email" {
-  topic_arn = aws_sns_topic.asg_alarms.arn
+resource "aws_sns_topic_subscription" "eks_alarms_email" {
+  topic_arn = aws_sns_topic.eks_alarms.arn
   protocol  = "email"
   endpoint  = "cocolancer.build@gmail.com"
 } 
