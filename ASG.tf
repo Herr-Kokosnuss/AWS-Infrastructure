@@ -43,9 +43,9 @@ resource "aws_autoscaling_group" "Cocoplanner" {
   target_group_arns = [aws_lb_target_group.asg.arn]
   health_check_type = "ELB"
 
-  min_size         = 2
-  max_size         = 2
-  desired_capacity = 2
+  min_size         = 1
+  max_size         = 1
+  desired_capacity = 1
 
   tag {
     key                 = "Name"
